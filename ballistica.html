@@ -1,0 +1,124 @@
+<html>
+	<head>
+		<script src=https://teikn-js.googlecode.com/svn-history/r23/trunk/libraries/kinetic-v3.6.0.js></script>
+		<script>
+			//drawing layer for shapes, needs to be added to stage to get rendered
+			var shapesLayer = new Kinetic.Layer();
+			var groundLine = [];
+			
+			function NewGame() {
+				//hide settings input once the game begins
+				document.getElementById("settings").style.display = 'none';
+				
+				var stage = new Kinetic.Stage("container", 300, 300);
+				var e = document.getElementById("container");
+				
+				e.style.width = 300;
+				e.style.height = 300;
+
+				//add some stuff to canvas
+				(function(){
+					groundLine[0] = new Kinetic.Shape(function(){
+						var canvas = this.getCanvas();
+						var context = this.getContext();  
+
+						//context.save;
+			
+						context.beginPath();
+						context.moveTo(0, 280);
+						context.lineTo(20, 285);
+						context.lineTo(50, 275);
+						context.lineTo(70, 280);
+						context.lineTo(100, 270);
+						context.lineTo(130, 275);
+						context.lineTo(150, 285);
+						context.lineTo(180, 270);
+						context.lineTo(210, 280);
+						context.lineTo(250, 270);
+						context.lineTo(260, 290);
+						context.lineTo(290, 285);
+						context.lineTo(300, 300);
+						context.lineTo(0, 300);
+						context.closePath();
+				
+						context.lineWidth = 5;
+						context.strokeStyle = "white";
+						context.fillStyle = "white";
+						context.fill();
+						context.stroke();
+						
+						//context.restore();
+						
+
+					});
+					
+					shapesLayer.draw();
+					shapesLayer.add(groundLine[0]);
+				})();
+				
+				stage.add(shapesLayer);
+			}
+		</script>
+	</head>
+<body bgcolor="black">// onmousedown="return false;">
+		<table border="0" align="center">
+			   <tr>
+				<td colspan="3">
+					<p align="center">
+						<font size="5" face="arial" color="aliceblue">
+							Ballistica
+						</font>
+					</p>
+				</td>
+			</tr>	        
+			<tr>
+				<td>
+					<p align="center">
+						<font size="2" face="arial" color="aliceblue">
+							<span id="moves">Angle: 90&deg;</span>
+						</font>
+					</p>
+				</td>
+				<td>
+					<p align="center">
+						<font size="2" face="arial" color="aliceblue">
+							<span id="score">Force: 50%</span>
+						</font>
+					</p>
+				</td>
+				<td>
+					<p align="center">
+						<font size="2" face="arial" color="aliceblue">
+							<span id="score">Wind: 0mph West</span>
+						</font>
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<div id="container"></div>
+				</td>
+			</tr>	        
+			<tr>
+				<td colspan="3">
+					<p align="center">
+						<font size="2" face="arial" color="aliceblue">
+							<span id="settings">
+								<button onclick="NewGame();">Start!</button>
+							</span>
+						</font>
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<p align="right">
+						<font size="2" face="arial" color="aliceblue" >
+							//GM &copy; 2012
+						</font>
+					</p>
+				</td>
+			</tr>	
+		</table>	
+	</body>
+</html>
