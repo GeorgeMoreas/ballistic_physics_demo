@@ -5,16 +5,19 @@
 			//drawing layer for shapes, needs to be added to stage to get rendered
 			var shapesLayer = new Kinetic.Layer();
 			var groundLine = [];
+			var gameWidth = 300;
+			var gameHeight = 300;
+			var groundCoords = [gameWidth];
 			
 			function NewGame() {
 				//hide settings input once the game begins
 				document.getElementById("settings").style.display = 'none';
 				
-				var stage = new Kinetic.Stage("container", 300, 300);
+				var stage = new Kinetic.Stage("container", gameWidth, gameHeight);
 				var e = document.getElementById("container");
 				
-				e.style.width = 300;
-				e.style.height = 300;
+				e.style.width = gameWidth;
+				e.style.height = gameHeight;
 
 				//add some stuff to canvas
 				(function(){
@@ -22,33 +25,54 @@
 						var canvas = this.getCanvas();
 						var context = this.getContext();  
 
-						//context.save;
-			
+						var groundSumY = 0;
+						var groundAvgY = 0
+				
+						for (a = 20; a < 100; a += 20) {
+							context.beginPath();
+							context.moveTo(0, gameHeight);
+							for (x = 0; x <= gameWidth; x += a) {
+								var y = 200 + Math.floor(Math.random() * 90);
+								context.lineTo(x, y);
+							}
+							context.lineTo(gameWidth, gameHeight);
+							context.closePath();
+		
+							context.lineWidth = 1;
+							context.strokeStyle = "gray";
+							context.fillStyle = "gray";
+							context.fill();
+							context.stroke();
+						}
+						for (x = 0; x < gameWidth; x++) {
+							for (y = gameHeight - 1; y >= 0; y--) {
+								var pxl = context.getImageData(x, y, 1, 1).data;
+								if (pxl[3] == 0) {
+									groundCoords[x] = y;
+									groundSumY += y;
+									break;
+								}
+							}
+						}
+						groundAvgY = groundSumY / gameWidth;
+				
+						context.clearRect(0, 0, canvas.width, canvas.height);
+				
 						context.beginPath();
-						context.moveTo(0, 280);
-						context.lineTo(20, 285);
-						context.lineTo(50, 275);
-						context.lineTo(70, 280);
-						context.lineTo(100, 270);
-						context.lineTo(130, 275);
-						context.lineTo(150, 285);
-						context.lineTo(180, 270);
-						context.lineTo(210, 280);
-						context.lineTo(250, 270);
-						context.lineTo(260, 290);
-						context.lineTo(290, 285);
-						context.lineTo(300, 300);
-						context.lineTo(0, 300);
+						context.moveTo(0, gameHeight);
+						for (x = 0; x <= gameWidth; x++) {
+							var y = groundAvgY + (groundCoords[x] - groundAvgY) * (groundCoords[x] / (3 * groundAvgY));
+							groundCoords[x] = y;
+							context.lineTo(x, y);
+						}
+						context.lineTo(gameWidth, gameHeight);
 						context.closePath();
 				
-						context.lineWidth = 5;
+						context.lineWidth = 1;
 						context.strokeStyle = "white";
 						context.fillStyle = "white";
 						context.fill();
 						context.stroke();
-						
-						//context.restore();
-						
 
 					});
 					
