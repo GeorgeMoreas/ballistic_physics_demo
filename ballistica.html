@@ -8,6 +8,42 @@
 			var gameWidth = 300;
 			var gameHeight = 300;
 			var groundCoords = [gameWidth];
+			var cannonX = 20;
+			
+			function shoot(angle, power, context) {
+				var origPoint = Math.pow((cannonX - power) / 10, 2);
+			
+				for (x = cannonX; x < gameWidth; x++) {
+					context.beginPath();
+					context.arc(x, groundCoords[cannonX] + Math.pow((x - power) / 10, 2) - origPoint, 2, 0, 2 * Math.PI, false);
+					context.fillStyle = 'red';
+					context.fill();
+					context.lineWidth = 1;
+					context.strokeStyle = 'red';
+					context.stroke();
+				}
+			}
+			
+			function placeCannon(context) {
+				for (y = gameHeight - 1; y >= 0; y--) {
+					var pxl = context.getImageData(cannonX, y, 1, 1).data;
+					if (pxl[3] == 0) {
+						groundCoords[cannonX] = y;
+						break;
+					}
+				}
+								
+				context.beginPath();
+				context.rect(cannonX - 5, groundCoords[cannonX] - 5, 10, 10);
+				context.fillStyle = 'green';
+				context.fill();
+				context.closePath();
+				context.lineWidth = 1;
+				context.strokeStyle = 'green';
+				context.stroke();
+				
+				shoot(30, 10, context);
+			}
 			
 			function NewGame() {
 				//hide settings input once the game begins
@@ -73,6 +109,8 @@
 						context.fillStyle = "white";
 						context.fill();
 						context.stroke();
+						
+						placeCannon(context);
 
 					});
 					
