@@ -21,13 +21,21 @@
 			}
 			
 			function heightAtX(origY, x, ang, gra, vel) {
-				var y = origY + (x * Math.tan(ang)) - ((gra * Math.pow(x, 2)) / (2 * Math.pow(vel * Math.cos(deg), 2)));
+				var y = origY + (x * Math.tan(ang)) - ((gra * Math.pow(x, 2)) / (2 * Math.pow(vel * Math.cos(ang), 2)));
 				return y;
 			}
 			
-			function velocityAtX(vel, gra, x, deg) {
-				var vel = Math.sqrt(Math.pow(vel, 2) - (2 * gra * x * Math.tan(deg)) + Math.pow((gra * x) / (vel * Math.cos(ang)), 2));
+			function velocityAtX(vel, gra, x, ang) {
+				var vel = Math.sqrt(Math.pow(vel, 2) - (2 * gra * x * Math.tan(ang)) + Math.pow((gra * x) / (vel * Math.cos(ang)), 2));
 				return vel;
+			}
+			
+			function toDegrees (angle) {
+			  return angle * (180 / Math.PI);
+			}
+
+			function toRadians (angle) {
+			  return angle * (Math.PI / 180);
 			}
 			
 			function shoot(angle, power, context) {
@@ -35,7 +43,7 @@
 			
 				for (x = cannonX; x < gameWidth; x++) {
 					context.beginPath();
-					context.arc(x, groundCoords[cannonX] + Math.pow((x - power) / 10, 2) - origPoint, 2, 0, 2 * Math.PI, false);
+					context.arc(x, groundCoords[cannonX] - heightAtX(0, x, toRadians(angle), 10, power), 2, 0, 2 * Math.PI, false);
 					context.fillStyle = 'red';
 					context.fill();
 					context.lineWidth = 1;
@@ -62,7 +70,7 @@
 				context.strokeStyle = 'green';
 				context.stroke();
 				
-				shoot(30, 10, context);
+				shoot(45, 50, context);
 			}
 			
 			function NewGame() {
