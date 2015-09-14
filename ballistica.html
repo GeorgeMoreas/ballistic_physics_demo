@@ -10,6 +10,26 @@
 			var groundCoords = [gameWidth];
 			var cannonX = 20;
 			
+			function calcDistance(vel, ang, gra) {
+				var dis = (Math.pow(vel, 2) * Math.sin(2 * ang)) / g;
+				return dis;
+			}
+			
+			function calcTimeOfFlight(vel, ang, gra, dis) {
+				var tim = dis / (vel * Math.cos(ang));
+				return tim;
+			}
+			
+			function heightAtX(origY, x, ang, gra, vel) {
+				var y = origY + (x * Math.tan(ang)) - ((gra * Math.pow(x, 2)) / (2 * Math.pow(vel * Math.cos(deg), 2)));
+				return y;
+			}
+			
+			function velocityAtX(vel, gra, x, deg) {
+				var vel = Math.sqrt(Math.pow(vel, 2) - (2 * gra * x * Math.tan(deg)) + Math.pow((gra * x) / (vel * Math.cos(ang)), 2));
+				return vel;
+			}
+			
 			function shoot(angle, power, context) {
 				var origPoint = Math.pow((cannonX - power) / 10, 2);
 			
