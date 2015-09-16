@@ -9,14 +9,22 @@
 			var gameHeight = 300;
 			var groundCoords = [gameWidth];
 			var cannonX = 20;
-			
+			var canvas;
+			var context;
+			var myCircle = {
+				x: 0,
+				y: 0,
+				radius: 2,
+				borderWidth: 1
+			};
+			/*
 			window.requestAnimFrame = (function(callback) {
 			return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
 				function(callback) {
 				  window.setTimeout(callback, 1000 / 60);
 				};
 			})();
-
+*/
 			function drawCircle(myCircle, myColor, context) {
 				context.beginPath();
 				context.arc(myCircle.x, myCircle.y, myCircle.radius, 0, 2 * Math.PI, false);
@@ -27,45 +35,40 @@
 				context.stroke();
 			}
 			
-			function animate(myRectangle, canvas, context, startTime) {
+			function animate(myCircle, canvas, context, startTime, continueAnimation, angle, power, damage) {
 				// update
 				var time = (new Date()).getTime() - startTime;
 
-				var linearSpeed = 100;
-				// pixels / second
-				var newX = linearSpeed * time / 1000;
-
-				if(newX < canvas.width - myRectangle.width - myRectangle.borderWidth / 2) {
-					myRectangle.x = newX;
+  				damage = damage || 50;
+				var y;
+				var continueAnimation = true;
+				var circleColor = 'black';
+			
+				for (x = cannonX; x < gameWidth; x++) {		
+					y = groundCoords[cannonX] - heightAtX(0, x, toRadians(angle), 10, power);
+							
+					myCircle.x = x;		
+					myCircle.y = y;
+					
+					if (noCollision(y, groundCoords[x])) {
+						// clear
+						var r = myCircle.radius;
+						circleColor = 'red';
+						continueAnimation = true;
+						context.clearRect(x - r * 2, y - r * 2, r * 4, r * 4);
+						drawCircle(myCircle, circleColor, context);
+					} else {
+						myCircle.radius = 25;
+						circleColor = 'indigo';
+						continueAnimation = false;
+						drawCircle(myCircle, circleColor, context);
+						break;
+					}
+				
+					// request new frame
+					window.requestAnimationFrame(animate(myCircle, canvas, context, startTime, angle, power, damage));
 				}
-
-				// clear
-				context.clearRect(0, 0, canvas.width, canvas.height);
-
-				drawRectangle(myRectangle, context);
-
-				// request new frame
-				requestAnimFrame(function() {
-					animate(myRectangle, canvas, context, startTime);
-				});
 			}
-			var canvas = document.getElementById('myCanvas');
-			var context = canvas.getContext('2d');
-
-			var myCircle = {
-				x: 0,
-				y: 0,
-				radius: 2,
-				borderWidth: 1
-			};
-
-			drawRectangle(myRectangle, context);
-
-			// wait one second before starting animation
-			setTimeout(function() {
-				var startTime = (new Date()).getTime();
-				animate(myRectangle, canvas, context, startTime);
-			}, 1000);
 			
 			function calcDistance(vel, ang, gra) {
 				var dis = (Math.pow(vel, 2) * Math.sin(2 * ang)) / g;
@@ -103,46 +106,7 @@
 			}
 			
 			function shoot(angle, power, context, damage) {
-  				damage = damage || 50;
-				var origPoint = Math.pow((cannonX - power) / 10, 2);
-				var y = groundCoords[cannonX] - heightAtX(0, cannonX, toRadians(angle), 10, power);
-				var prevY = -10;
-			
-				for (x = cannonX; x < gameWidth; x++) {
-					if (noCollision(y, groundCoords[x])) {
-						
-						prevY = groundCoords[cannonX] - heightAtX(0, x - 1, toRadians(angle), 10, power);
-
-						context.beginPath();
-						context.arc(x, prevY, 2, 0, 2 * Math.PI, false);
-						context.fillStyle = 'black';
-						context.fill();
-						context.lineWidth = 1;
-						context.strokeStyle = 'black';
-						context.stroke();
-						
-						y = groundCoords[cannonX] - heightAtX(0, x, toRadians(angle), 10, power);
-
-						drawCircle(myCircle, context);
-						
-						context.beginPath();
-						context.arc(x, y, 2, 0, 2 * Math.PI, false);
-						context.fillStyle = 'red';
-						context.fill();
-						context.lineWidth = 1;
-						context.strokeStyle = 'red';
-						context.stroke();
-					} else {
-						context.beginPath();
-						context.arc(x, y, damage, 0, 2 * Math.PI, false);
-						context.fillStyle = 'indigo';
-						context.fill();
-						context.lineWidth = 1;
-						context.strokeStyle = 'indigo';
-						context.stroke();
-						break;
-					}
-				}
+  				animate(myCircle, canvas, context, (new Date()).getTime(), true, angle, power, damage);
 			}
 			
 			function placeCannon(context) {
@@ -179,8 +143,8 @@
 				//add some stuff to canvas
 				(function(){
 					groundLine[0] = new Kinetic.Shape(function(){
-						var canvas = this.getCanvas();
-						var context = this.getContext();  
+						canvas = this.getCanvas();
+						context = this.getContext();  
 
 						var groundSumY = 0;
 						var groundAvgY = 0
