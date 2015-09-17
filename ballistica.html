@@ -32,14 +32,6 @@
 				function(callback) {
 				  return setTimeout(callback, 1000);
 				};
-			/*
-			window.requestAnimFrame = (function(callback) {
-			return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
-				function(callback) {
-				  window.setTimeout(callback, 1000 / 60);
-				};
-			})();
-*/
 			
 			function calcDistance(vel, ang, gra) {
 				var dis = (Math.pow(vel, 2) * Math.sin(2 * ang)) / g;
@@ -87,40 +79,21 @@
 			}
 			
 			var animate = function() {
-				var circleColor = 'black';
+				var circleColor;
 						
 				globX++;
 				globY = groundCoords[cannonX] - heightAtX(0, globX, toRadians(angle), 10, power);
+				
+				context.clearRect(myCircle.x - myCircle.radius - 1, myCircle.y - myCircle.radius - 1, myCircle.radius * 2 + 2, myCircle.radius * 2 + 2);
 						
 				myCircle.x = globX;		
 				myCircle.y = globY;
 				
-				context.clearRect(0, 0, canvas.width, canvas.height);
-						
-				context.beginPath();
-				context.rect(cannonX, groundCoords[cannonX] - 5, 10, 10);
-				context.fillStyle = 'green';
-				context.fill();
-				context.closePath();
-				context.lineWidth = 1;
-				context.strokeStyle = 'green';
-				context.stroke();
-		
-				context.beginPath();
-				context.moveTo(0, gameHeight);
-				for (gx = 0; gx <= gameWidth; gx++) {
-					context.lineTo(gx, groundCoords[gx]);
-				}
-				context.lineTo(gameWidth, gameHeight);
-				context.closePath();				
-				context.lineWidth = 1;
-				context.strokeStyle = "white";
-				context.fillStyle = "white";
-				context.fill();
-				context.stroke();
+				var redValue = 355 - globX;
+				var blueValue = globX;
 				
 				if (noCollision(globY, groundCoords[globX])) {
-					circleColor = 'red';
+					circleColor = "rgb(" + 255 + ", 0, " + blueValue + ")";
 					drawCircle(myCircle, circleColor);
 					window.requestAnimationFrame(animate);
 				} else {
@@ -145,12 +118,25 @@
 				for (x = 0; x < gameWidth; x++) {
 					for (y = gameHeight - 1; y >= 0; y--) {
 						var pxl = context.getImageData(x, y, 1, 1).data;
-						if (pxl[3] == 0) {
-							groundCoords[x] = y + 1;
+						if (pxl[0] == 0 && pxl[1] == 0 && pxl[2] == 0) {
+							groundCoords[x] = y + 2;
 							break;
 						}
 					}
 				}
+				
+				context.beginPath();
+				context.moveTo(0, gameHeight);
+				for (gx = 0; gx <= gameWidth; gx++) {
+					context.lineTo(gx, groundCoords[gx]);
+				}
+				context.lineTo(gameWidth, gameHeight);
+				context.closePath();				
+				context.lineWidth = 1;
+				context.strokeStyle = "white";
+				context.fillStyle = "white";
+				context.fill();
+				context.stroke();
 				
 				animate();
 			}
@@ -204,6 +190,16 @@
 				
 				context.clearRect(0, 0, canvas.width, canvas.height);
 				
+				
+				context.beginPath();
+				context.rect(cannonX, groundCoords[cannonX] - 5, 10, 10);
+				context.fillStyle = 'green';
+				context.fill();
+				context.closePath();
+				context.lineWidth = 1;
+				context.strokeStyle = 'green';
+				context.stroke();
+				
 				context.beginPath();
 				context.moveTo(0, gameHeight);
 				for (gx = 0; gx <= gameWidth; gx++) {
@@ -216,6 +212,8 @@
 				context.fillStyle = "white";
 				context.fill();
 				context.stroke();
+				
+				
 
 			}
 		</script>
