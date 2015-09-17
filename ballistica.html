@@ -14,14 +14,23 @@
 			var angle = 45;
 			var power = 100;
 			var damage = 50;
-			var x = cannonX;			
-			var y;
+			var globX = cannonX;			
+			var globY;
 			var myCircle = {
 				x: 0,
 				y: 0,
 				radius: 2,
 				borderWidth: 1
 			};
+			var requestAnimationFrame =  
+				window.requestAnimationFrame ||
+				window.webkitRequestAnimationFrame ||
+				window.mozRequestAnimationFrame ||
+				window.msRequestAnimationFrame ||
+				window.oRequestAnimationFrame ||
+				function(callback) {
+				  return setTimeout(callback, 1000);
+				};
 			/*
 			window.requestAnimFrame = (function(callback) {
 			return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -76,16 +85,25 @@
 				context.stroke();
 			}
 			
-			function animate() {
+			var animate = function() {
 				var circleColor = 'black';
 						
-				x++;
-				y = groundCoords[cannonX] - heightAtX(0, x, toRadians(angle), 10, power);
+				globX++;
+				globY = groundCoords[cannonX] - heightAtX(0, globX, toRadians(angle), 10, power);
 						
-				myCircle.x = x;		
-				myCircle.y = y - 5;
+				myCircle.x = globX;		
+				myCircle.y = globY;
 				
-				//context.clearRect(0, 0, canvas.width, canvas.height);
+				context.clearRect(0, 0, canvas.width, canvas.height);
+						
+				context.beginPath();
+				context.rect(cannonX, groundCoords[cannonX] - 5, 10, 10);
+				context.fillStyle = 'green';
+				context.fill();
+				context.closePath();
+				context.lineWidth = 1;
+				context.strokeStyle = 'green';
+				context.stroke();
 		
 				context.beginPath();
 				context.moveTo(0, gameHeight);
@@ -100,38 +118,17 @@
 				context.fill();
 				context.stroke();
 				
-				if (noCollision(y, groundCoords[x])) {
+				if (noCollision(globY, groundCoords[globX])) {
 					circleColor = 'red';
 					drawCircle(myCircle, circleColor);
-					window.requestAnimationFrame(animate);
 				} else {
 					myCircle.radius = 25;
 					circleColor = 'indigo';
 					drawCircle(myCircle, circleColor);
 				}
-			}
-			
-			function placeCannon() {
-				for (y = gameHeight - 1; y >= 0; y--) {
-					var pxl = context.getImageData(cannonX, y, 1, 1).data;
-					if (pxl[3] == 0) {
-						groundCoords[cannonX] = y;
-						break;
-					}
+				if (globX < gameWidth) {
+					window.requestAnimationFrame(animate);
 				}
-								
-				context.beginPath();
-				context.rect(cannonX - 5, groundCoords[cannonX] - 5, 10, 10);
-				context.fillStyle = 'green';
-				context.fill();
-				context.closePath();
-				context.lineWidth = 1;
-				context.strokeStyle = 'green';
-				context.stroke();
-  				
-				//context.save();
-  				
-  				animate();
 			}
 			
 			function NewGame() {
@@ -149,6 +146,8 @@
 
 				var groundSumY = 0;
 				var groundAvgY = 0
+		
+			  	context.globalCompositeOperation = 'destination-over';
 		
 				for (a = 20; a < 100; a += 20) {
 					context.beginPath();
@@ -178,24 +177,11 @@
 				}
 				groundAvgY = groundSumY / gameWidth;
 		
-				context.clearRect(0, 0, canvas.width, canvas.height);
-		
-				context.beginPath();
-				context.moveTo(0, gameHeight);
 				for (x = 0; x <= gameWidth; x++) {
-					var y = groundAvgY + (groundCoords[x] - groundAvgY) * (groundCoords[x] / (3 * groundAvgY));
-					groundCoords[x] = y;
-					context.lineTo(x, y);
+					groundCoords[x] = groundAvgY + (groundCoords[x] - groundAvgY) * (groundCoords[x] / (3 * groundAvgY));
 				}
-				context.lineTo(gameWidth, gameHeight);
-				context.closePath();				
-				context.lineWidth = 1;
-				context.strokeStyle = "white";
-				context.fillStyle = "white";
-				context.fill();
-				context.stroke();
 
-				placeCannon();
+  				animate();
 			}
 		</script>
 	</head>
