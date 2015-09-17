@@ -14,6 +14,8 @@
 			var angle = 45;
 			var power = 100;
 			var damage = 50;
+			var x = cannonX;			
+			var y;
 			var myCircle = {
 				x: 0,
 				y: 0,
@@ -28,55 +30,6 @@
 				};
 			})();
 */
-			function drawCircle(myCircle, myColor, context) {
-				context.beginPath();
-				context.arc(myCircle.x, myCircle.y, myCircle.radius, 0, 2 * Math.PI, false);
-				context.fillStyle = myColor;
-				context.fill();
-				context.lineWidth = myCircle.borderWidth;
-				context.strokeStyle = myColor;
-				context.stroke();
-			}
-			
-			function animate() {
-				
-			  	//context.globalCompositeOperation = 'destination-over';
-
-				var y;
-				var continueAnimation = true;
-				var circleColor = 'black';
-			
-				context.save();
-			
-				for (x = cannonX; x < gameWidth; x++) {		
-					y = groundCoords[cannonX] - heightAtX(0, x, toRadians(angle), 10, power);
-							
-					myCircle.x = x;		
-					myCircle.y = y - 5;
-					
-					if (noCollision(y, groundCoords[x])) {
-						var r = myCircle.radius;
-						
-						circleColor = 'red';
-						continueAnimation = true;
-						context.clearRect(x - r * 2, y - r * 2, r * 4, r * 4);
-						drawCircle(myCircle, circleColor, context);
-					} else {
-						myCircle.radius = 25;
-						circleColor = 'indigo';
-						continueAnimation = false;
-						drawCircle(myCircle, circleColor, context);
-						break;
-					}
-					
-					context.restore();
-				
-					//shapesLayer.draw();
-					// request new frame
-					window.requestAnimationFrame(animate);
-				}
-				//shapesLayer.draw();
-			}
 			
 			function calcDistance(vel, ang, gra) {
 				var dis = (Math.pow(vel, 2) * Math.sin(2 * ang)) / g;
@@ -113,7 +66,52 @@
 				return false;
 			}
 			
-			function placeCannon(context) {
+			function drawCircle(myCircle, myColor) {
+				context.beginPath();
+				context.arc(myCircle.x, myCircle.y, myCircle.radius, 0, 2 * Math.PI, false);
+				context.fillStyle = myColor;
+				context.fill();
+				context.lineWidth = myCircle.borderWidth;
+				context.strokeStyle = myColor;
+				context.stroke();
+			}
+			
+			function animate() {
+				var circleColor = 'black';
+						
+				x++;
+				y = groundCoords[cannonX] - heightAtX(0, x, toRadians(angle), 10, power);
+						
+				myCircle.x = x;		
+				myCircle.y = y - 5;
+				
+				//context.clearRect(0, 0, canvas.width, canvas.height);
+		
+				context.beginPath();
+				context.moveTo(0, gameHeight);
+				for (gx = 0; gx <= gameWidth; gx++) {
+					context.lineTo(gx, groundCoords[gx]);
+				}
+				context.lineTo(gameWidth, gameHeight);
+				context.closePath();				
+				context.lineWidth = 1;
+				context.strokeStyle = "white";
+				context.fillStyle = "white";
+				context.fill();
+				context.stroke();
+				
+				if (noCollision(y, groundCoords[x])) {
+					circleColor = 'red';
+					drawCircle(myCircle, circleColor);
+					window.requestAnimationFrame(animate);
+				} else {
+					myCircle.radius = 25;
+					circleColor = 'indigo';
+					drawCircle(myCircle, circleColor);
+				}
+			}
+			
+			function placeCannon() {
 				for (y = gameHeight - 1; y >= 0; y--) {
 					var pxl = context.getImageData(cannonX, y, 1, 1).data;
 					if (pxl[3] == 0) {
@@ -130,8 +128,8 @@
 				context.lineWidth = 1;
 				context.strokeStyle = 'green';
 				context.stroke();
-				
-				//shapesLayer.draw();
+  				
+				//context.save();
   				
   				animate();
 			}
@@ -145,70 +143,59 @@
 				
 				e.style.width = gameWidth;
 				e.style.height = gameHeight;
-
-				//add some stuff to canvas
-				//(function(){
-				//	groundLine[0] = new Kinetic.Shape(function(){
-						canvas = document.getElementById('canvas');
-						context = canvas.getContext('2d');
-
-						var groundSumY = 0;
-						var groundAvgY = 0
 				
-						for (a = 20; a < 100; a += 20) {
-							context.beginPath();
-							context.moveTo(0, gameHeight);
-							for (x = 0; x <= gameWidth; x += a) {
-								var y = 200 + Math.floor(Math.random() * 90);
-								context.lineTo(x, y);
-							}
-							context.lineTo(gameWidth, gameHeight);
-							context.closePath();
+				canvas = document.getElementById('canvas');
+				context = canvas.getContext('2d');
+
+				var groundSumY = 0;
+				var groundAvgY = 0
 		
-							context.lineWidth = 1;
-							context.strokeStyle = "white";
-							context.fillStyle = "white";
-							context.fill();
-							context.stroke();
-						}
-						for (x = 0; x < gameWidth; x++) {
-							for (y = gameHeight - 1; y >= 0; y--) {
-								var pxl = context.getImageData(x, y, 1, 1).data;
-								if (pxl[3] == 0) {
-									groundCoords[x] = y;
-									groundSumY += y;
-									break;
-								}
-							}
-						}
-						groundAvgY = groundSumY / gameWidth;
-				
-						context.clearRect(0, 0, canvas.width, canvas.height);
-				
-						context.beginPath();
-						context.moveTo(0, gameHeight);
-						for (x = 0; x <= gameWidth; x++) {
-							var y = groundAvgY + (groundCoords[x] - groundAvgY) * (groundCoords[x] / (3 * groundAvgY));
-							groundCoords[x] = y;
-							context.lineTo(x, y);
-						}
-						context.lineTo(gameWidth, gameHeight);
-						context.closePath();
-				
-						context.lineWidth = 1;
-						context.strokeStyle = "white";
-						context.fillStyle = "white";
-						context.fill();
-						context.stroke();
+				for (a = 20; a < 100; a += 20) {
+					context.beginPath();
+					context.moveTo(0, gameHeight);
+					for (x = 0; x <= gameWidth; x += a) {
+						var y = 200 + Math.floor(Math.random() * 90);
+						context.lineTo(x, y);
+					}
+					context.lineTo(gameWidth, gameHeight);
+					context.closePath();
 
-				//	});
-					
-				//	shapesLayer.draw();
-				//	shapesLayer.add(groundLine[0]);
-				//})();
-				
-				//stage.add(shapesLayer);
-				placeCannon(context);
+					context.lineWidth = 1;
+					context.strokeStyle = "gray";
+					context.fillStyle = "gray";
+					context.fill();
+					context.stroke();
+				}
+				for (x = 0; x < gameWidth; x++) {
+					for (y = gameHeight - 1; y >= 0; y--) {
+						var pxl = context.getImageData(x, y, 1, 1).data;
+						if (pxl[3] == 0) {
+							groundCoords[x] = y;
+							groundSumY += y;
+							break;
+						}
+					}
+				}
+				groundAvgY = groundSumY / gameWidth;
+		
+				context.clearRect(0, 0, canvas.width, canvas.height);
+		
+				context.beginPath();
+				context.moveTo(0, gameHeight);
+				for (x = 0; x <= gameWidth; x++) {
+					var y = groundAvgY + (groundCoords[x] - groundAvgY) * (groundCoords[x] / (3 * groundAvgY));
+					groundCoords[x] = y;
+					context.lineTo(x, y);
+				}
+				context.lineTo(gameWidth, gameHeight);
+				context.closePath();				
+				context.lineWidth = 1;
+				context.strokeStyle = "white";
+				context.fillStyle = "white";
+				context.fill();
+				context.stroke();
+
+				placeCannon();
 			}
 		</script>
 	</head>
@@ -249,7 +236,7 @@
 			<tr>
 				<td colspan="3">
 					<div id="container">
-						<canvas id="canvas">
+						<canvas id="canvas" height="300" width="300">
 					</div>
 				</td>
 			</tr>	        
