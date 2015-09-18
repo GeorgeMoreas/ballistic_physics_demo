@@ -5,8 +5,8 @@
 			//drawing layer for shapes, needs to be added to stage to get rendered
 			//var shapesLayer = new Kinetic.Layer();
 			var groundLine = [];
-			var gameWidth = 300;
-			var gameHeight = 300;
+			var gameWidth = 0;
+			var gameHeight = 0;
 			var groundCoords = [gameWidth];
 			var cannonX = 20;
 			var canvas;
@@ -103,7 +103,11 @@
 					drawCircle(myCircle, circleColor);
 				}
 			}
-			
+			/*
+			function progressBar(prog) {
+				document.getElementById("shootButton").innerHTML = prog;
+			}
+			*/
 			function shoot() {
 				if (firstShot) {
 					NewGame();
@@ -113,7 +117,7 @@
 				globX = cannonX;
 				myCircle.radius = 2;
 				angle = document.getElementById("angle").value;
-				power = document.getElementById("power").value;
+				power = document.getElementById("power").value / 2;
 				wind = document.getElementById("wind").value;
 				
 				for (x = 0; x < gameWidth; x++) {
@@ -143,14 +147,17 @@
 			}
 			
 			function NewGame() {
-				var stage = new Kinetic.Stage("container", gameWidth, gameHeight);
+				//var stage = new Kinetic.Stage("container", gameWidth, gameHeight);
 				var e = document.getElementById("container");
-				
+								
 				e.style.width = gameWidth;
 				e.style.height = gameHeight;
 				
 				canvas = document.getElementById('canvas');
 				context = canvas.getContext('2d');
+				
+				gameWidth = canvas.width;
+				gameHeight = canvas.height;
 
 				var groundSumY = 0;
 				var groundAvgY = 0
@@ -161,15 +168,15 @@
 					context.beginPath();
 					context.moveTo(0, gameHeight);
 					for (x = 0; x <= gameWidth; x += a) {
-						var y = 200 + Math.floor(Math.random() * 90);
+						var y = (gameHeight * 2 / 3) + Math.floor(Math.random() * 90);
 						context.lineTo(x, y);
 					}
 					context.lineTo(gameWidth, gameHeight);
 					context.closePath();
 
 					context.lineWidth = 1;
-					context.strokeStyle = "gray";
-					context.fillStyle = "gray";
+					context.strokeStyle = 'gray';
+					context.fillStyle = 'gray';
 					context.fill();
 					context.stroke();
 				}
@@ -182,6 +189,8 @@
 							break;
 						}
 					}
+					//var prog = x / (gameWidth - 1) * 100;
+					//setTimeout(progressBar(prog.toFixed(0)), 100);
 				}
 				groundAvgY = groundSumY / gameWidth;
 		
@@ -209,8 +218,8 @@
 				context.lineTo(gameWidth, gameHeight);
 				context.closePath();				
 				context.lineWidth = 1;
-				context.strokeStyle = "white";
-				context.fillStyle = "white";
+				context.strokeStyle = 'white';
+				context.fillStyle = 'white';
 				context.fill();
 				context.stroke();
 				
@@ -219,10 +228,10 @@
 			}
 		</script>
 	</head>
-<body bgcolor="black">// onmousedown="return false;">
+	<body bgcolor="black">// onmousedown="return false;">
 		<table border="0" align="center">
-			   <tr>
-				<td colspan="3">
+			<tr>
+				<td colspan="4">
 					<p align="center">
 						<font size="5" face="arial" color="aliceblue">
 							Ballistica
@@ -255,20 +264,20 @@
 				<td>
 					<p align="center">
 						<font size="2" face="arial" color="aliceblue">
-							<button onclick="shoot();">Shoot!</button>
+							<button id = "shootButton" onclick="shoot();">Shoot!</button>
 						</font>
 					</p>
 				</td>
 			</tr>
 			<tr>
-				<td colspan="3">
+				<td colspan="4">
 					<div id="container">
-						<canvas id="canvas" height="300" width="300">
+						<canvas id="canvas" height="400" width="600">
 					</div>
 				</td>
 			</tr>	 
 			<tr>
-				<td colspan="3">
+				<td colspan="4">
 					<p align="right">
 						<font size="2" face="arial" color="aliceblue" >
 							//GM &copy; 2015
