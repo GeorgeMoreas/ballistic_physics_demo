@@ -4,25 +4,18 @@
 		<script>
 			//drawing layer for shapes, needs to be added to stage to get rendered
 			//var shapesLayer = new Kinetic.Layer();
-			var grid = [];
-			var ground_p1 = [];
-			var ground_p2 = [];
-			var groundCoords = [gameWidth];
-			var cannonX = 20;
+			var block = [];
+			var blockSide = 9;
+			var gameHeight = 300;
+			var gameWidth = 300;
 			var canvas;
 			var context;
 			var angle = 45;
 			var power = 100;
 			var damage = 50;
-			var globX = cannonX;			
-			var globY;
 			var firstShot = true;
-			var myCircle = {
-				x: 0,
-				y: 0,
-				radius: 2,
-				borderWidth: 1
-			};
+			var shapesLayer = new Kinetic.Layer();
+			
 			var requestAnimationFrame =  
 				window.requestAnimationFrame ||
 				window.webkitRequestAnimationFrame ||
@@ -68,16 +61,6 @@
 				return false;
 			}
 			
-			function drawCircle(myCircle, myColor) {
-				context.beginPath();
-				context.arc(myCircle.x, myCircle.y, myCircle.radius, 0, 2 * Math.PI, false);
-				context.fillStyle = myColor;
-				context.fill();
-				context.lineWidth = myCircle.borderWidth;
-				context.strokeStyle = myColor;
-				context.stroke();
-			}
-			
 			var animate = function() {
 				var circleColor;
 						
@@ -110,13 +93,11 @@
 					firstShot = false;
 				}
 			
-				globX = cannonX;
-				myCircle.radius = 2;
 				angle = document.getElementById("angle").value;
 				power = document.getElementById("power").value;
 				wind = document.getElementById("wind").value;
 				
-				animate();
+				//animate();
 			}
 			
 			function NewGame() {
@@ -128,33 +109,28 @@
 				
 				canvas = document.getElementById('canvas');
 				context = canvas.getContext('2d');
-				
-				gridSize = 
-
-				var groundSumY = 0;
-				var groundAvgY = 0
 		
-			  	for (x = 0; x < gameWidth; x++) {
-			  		for (y = 0; y < gameHeight; y++) {
-			  			grid[x * gamewidth + y] = new Kinetic.Shape(function(x_min, y_min, x_max, y_max, color, status){     
-							
-			  			
+			  	for (x = 0; x < gameWidth; x += 10) {
+			  		for (y = 0; y < gameHeight; y += 10) {
+			  			block[x * gameWidth + y] = new Kinetic.Shape(function(x_min, y_min, x_max, y_max, color, status) {     
+				
+							context.beginPath();
+							context.moveTo(x, y);
+							context.lineTo(x + 9, y);
+							context.lineTo(x + 9, y + 9);
+							context.lineTo(x, y + 9);
+							context.closePath();				
+							context.lineWidth = 0;
+							context.strokeStyle = "white";
+							context.fillStyle = "white";
+							context.fill();
+							context.stroke();
+						});
+						shapesLayer.add(block[x * gameWidth + y]);
 			  		}
 			  	}
-				
-				
-				context.beginPath();
-				context.moveTo(0, gameHeight);
-				for (gx = 0; gx <= gameWidth; gx++) {
-					context.lineTo(gx, groundCoords[gx]);
-				}
-				context.lineTo(gameWidth, gameHeight);
-				context.closePath();				
-				context.lineWidth = 1;
-				context.strokeStyle = "white";
-				context.fillStyle = "white";
-				context.fill();
-				context.stroke();
+			  	stage.add(shapesLayer);
+			  	shapesLayer.draw();
 			}
 		</script>
 	</head>
