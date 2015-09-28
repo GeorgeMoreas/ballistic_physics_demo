@@ -149,7 +149,7 @@
 								//context.restore();
 							});
 							
-							block[blockIndex].on("mousedown", function(){
+							block[blockIndex].on("mouseover", function(){
 								cannonControl(this);
 							});
 							
@@ -192,16 +192,16 @@
 			
 			function cannonControl(b) {
 				if (b.bx > cannon.cannonX) {
-					cannon.cannonX += 10;
+					cannon.cannonX += blockSide + 1;
 				} 
 				if (b.bx < cannon.cannonX) {
-					cannon.cannonX -= 10;
+					cannon.cannonX -= blockSide + 1;
 				} 
 				if (b.by > cannon.cannonY) {
-					cannon.cannonY += 10;
+					//cannon.cannonY += blockSide + 1;
 				} 
 				if (b.by < cannon.cannonY) {
-					cannon.cannonY -= 10;
+					//cannon.cannonY -= blockSide + 1;
 				} 
 				shapesLayer.draw();
 			}
