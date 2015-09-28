@@ -6,15 +6,18 @@
 			//var shapesLayer = new Kinetic.Layer();
 			var block = [];
 			var blockSide = 4;
-			var gameHeight = 0;
-			var gameWidth = 0;
-			var canvas;
-			var context;
+			var gameHeight = 300;
+			var gameWidth = 400;
+			var tx = 0;
+			var ty = 200;
+			//var canvas;
+			//var context;
 			var angle = 45;
 			var power = 100;
 			var damage = 50;
 			var firstShot = true;
 			var shapesLayer = new Kinetic.Layer();
+			var cannon;
 			
 			var requestAnimationFrame =  
 				window.requestAnimationFrame ||
@@ -101,29 +104,34 @@
 			}
 			
 			function NewGame() {
-				gameHeight = document.getElementById('canvas').height;
-				gameWidth = document.getElementById('canvas').width;
-				
 				var stage = new Kinetic.Stage("container", gameWidth, gameHeight);
 				var e = document.getElementById("container");
 				
 				e.style.width = gameWidth;
 				e.style.height = gameHeight;
 				
-				canvas = document.getElementById('canvas');
-				context = canvas.getContext('2d');
+				//canvas = document.getElementById('canvas');
+				//context = canvas.getContext('2d');
 				
 				var blockIndex = 0;
+				var init = true;
 				
 			  	for (cy = 0; cy < gameHeight; cy += blockSide + 1) {
 			  		for (cx = 0; cx < gameWidth; cx += blockSide + 1) {
 			  			(function() {
 			  				var x = cx;
 			  				var y = cy;
+			  				var canX = tx;
+			  				var canY = ty;
 			  			
-							block[blockIndex] = new Kinetic.Shape(function() {    
-				
-								context.save();
+							block[blockIndex] = new Kinetic.Shape(function(bx, by) {    
+								var canvas = this.getCanvas();
+								var context = this.getContext();  
+
+								this.bx = x;
+								this.by = y;
+					
+								//context.save();
 								
 								context.beginPath();
 								context.moveTo(x, y);
@@ -131,18 +139,71 @@
 								context.lineTo(x + blockSide, y + blockSide);
 								context.lineTo(x, y + blockSide);
 								context.closePath();
-								context.fillStyle = "white";
+								if (y > 200) {
+									context.fillStyle = "maroon";
+								} else {
+									context.fillStyle = "midnightblue";
+								}
 								context.fill();		
 								
-								context.restore();
+								//context.restore();
 							});
+							
+							block[blockIndex].on("mousedown", function(){
+								cannonControl(this);
+							});
+							
+							if (x == 0 && y == 0) {
+								cannon = new Kinetic.Shape(function(cannonX, cannonY) { 
+									var canvas = this.getCanvas();
+									var context = this.getContext();  
+								 
+									if (init) {
+										this.cannonX = canX;
+										this.cannonY = canY;	
+										this.color = "orange";
+										init = false;
+									}
+								
+									//context.save();					
+																
+									context.beginPath();
+									context.moveTo(this.cannonX, this.cannonY);
+									context.lineTo(this.cannonX + blockSide, this.cannonY);
+									context.lineTo(this.cannonX + blockSide, this.cannonY + blockSide);
+									context.lineTo(this.cannonX, this.cannonY + blockSide);
+									context.fillStyle = this.color;
+									context.closePath();
+									context.fill();
+								
+									//context.restore();
+								});
+							}
+							
 							shapesLayer.add(block[blockIndex]);
+							shapesLayer.add(cannon);
 						})();
 						blockIndex++;
 					}
 				}
 			  	stage.add(shapesLayer);
 			  	shapesLayer.draw();
+			}
+			
+			function cannonControl(b) {
+				if (b.bx > cannon.cannonX) {
+					cannon.cannonX += 10;
+				} 
+				if (b.bx < cannon.cannonX) {
+					cannon.cannonX -= 10;
+				} 
+				if (b.by > cannon.cannonY) {
+					cannon.cannonY += 10;
+				} 
+				if (b.by < cannon.cannonY) {
+					cannon.cannonY -= 10;
+				} 
+				shapesLayer.draw();
 			}
 		</script>
 	</head>
@@ -189,8 +250,7 @@
 			</tr>
 			<tr>
 				<td colspan="4">
-					<div id="container" align="center">
-						<canvas id="canvas" height="300" width="400" align="center">
+					<div id="container">
 					</div>
 				</td>
 			</tr>	 
