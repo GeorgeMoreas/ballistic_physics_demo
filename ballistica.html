@@ -5,9 +5,9 @@
 			//drawing layer for shapes, needs to be added to stage to get rendered
 			//var shapesLayer = new Kinetic.Layer();
 			var block = [];
-			var blockSide = 9;
-			var gameHeight = 300;
-			var gameWidth = 300;
+			var blockSide = 4;
+			var gameHeight = 0;
+			var gameWidth = 0;
 			var canvas;
 			var context;
 			var angle = 45;
@@ -101,6 +101,9 @@
 			}
 			
 			function NewGame() {
+				gameHeight = document.getElementById('canvas').height;
+				gameWidth = document.getElementById('canvas').width;
+				
 				var stage = new Kinetic.Stage("container", gameWidth, gameHeight);
 				var e = document.getElementById("container");
 				
@@ -109,26 +112,35 @@
 				
 				canvas = document.getElementById('canvas');
 				context = canvas.getContext('2d');
-		
-			  	for (x = 0; x < gameWidth; x += 10) {
-			  		for (y = 0; y < gameHeight; y += 10) {
-			  			block[x * gameWidth + y] = new Kinetic.Shape(function(x_min, y_min, x_max, y_max, color, status) {     
 				
-							context.beginPath();
-							context.moveTo(x, y);
-							context.lineTo(x + 9, y);
-							context.lineTo(x + 9, y + 9);
-							context.lineTo(x, y + 9);
-							context.closePath();				
-							context.lineWidth = 0;
-							context.strokeStyle = "white";
-							context.fillStyle = "white";
-							context.fill();
-							context.stroke();
-						});
-						shapesLayer.add(block[x * gameWidth + y]);
-			  		}
-			  	}
+				var blockIndex = 0;
+				
+			  	for (cy = 0; cy < gameHeight; cy += blockSide + 1) {
+			  		for (cx = 0; cx < gameWidth; cx += blockSide + 1) {
+			  			(function() {
+			  				var x = cx;
+			  				var y = cy;
+			  			
+							block[blockIndex] = new Kinetic.Shape(function() {    
+				
+								context.save();
+								
+								context.beginPath();
+								context.moveTo(x, y);
+								context.lineTo(x + blockSide, y);
+								context.lineTo(x + blockSide, y + blockSide);
+								context.lineTo(x, y + blockSide);
+								context.closePath();
+								context.fillStyle = "white";
+								context.fill();		
+								
+								context.restore();
+							});
+							shapesLayer.add(block[blockIndex]);
+						})();
+						blockIndex++;
+					}
+				}
 			  	stage.add(shapesLayer);
 			  	shapesLayer.draw();
 			}
@@ -136,8 +148,8 @@
 	</head>
 <body bgcolor="black">// onmousedown="return false;">
 		<table border="0" align="center">
-			   <tr>
-				<td colspan="3">
+			<tr>
+				<td colspan="4">
 					<p align="center">
 						<font size="5" face="arial" color="aliceblue">
 							Ballistica
@@ -176,14 +188,14 @@
 				</td>
 			</tr>
 			<tr>
-				<td colspan="3">
-					<div id="container">
-						<canvas id="canvas" height="300" width="300">
+				<td colspan="4">
+					<div id="container" align="center">
+						<canvas id="canvas" height="300" width="400" align="center">
 					</div>
 				</td>
 			</tr>	 
 			<tr>
-				<td colspan="3">
+				<td colspan="4">
 					<p align="right">
 						<font size="2" face="arial" color="aliceblue" >
 							//GM &copy; 2015
