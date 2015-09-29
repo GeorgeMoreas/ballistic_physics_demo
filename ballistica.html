@@ -18,6 +18,11 @@
 			var firstShot = true;
 			var shapesLayer = new Kinetic.Layer();
 			var cannon;
+			var globX = 0;
+			var globY;
+			var initGame = true;
+			var prevBlockIndex = 0;
+			var prevColor = "";
 			
 			var requestAnimationFrame =  
 				window.requestAnimationFrame ||
@@ -52,7 +57,6 @@
 			function toDegrees (angle) {
 			  return angle * (180 / Math.PI);
 			}
-
 			function toRadians (angle) {
 			  return angle * (Math.PI / 180);
 			}
@@ -65,34 +69,38 @@
 			}
 			
 			var animate = function() {
-				var circleColor;
-						
+			
 				globX++;
-				globY = groundCoords[cannonX] - heightAtX(0, globX - cannonX, toRadians(angle), 10, power);
+				globY = cannon.cannonY - heightAtX(0, globX - cannon.cannonX, toRadians(angle), 10, power);
 				
-				//context.clearRect(myCircle.x - myCircle.radius - 1, myCircle.y - myCircle.radius - 1, myCircle.radius * 2 + 2, myCircle.radius * 2 + 2);
+				for (var a = 0, b; b = block[a]; a++) {
+					if (globX >= b.bx &&
+						globX <= b.bx + blockSide &&
+						globY >= b.by &&
+						globY <= b.by + blockSide) {
 						
-				myCircle.x = globX;		
-				myCircle.y = globY;
+						if (a == 0) {
+							//
+						} else {
+							block[prevBlockIndex].color = prevColor;
+						}
+						
+						prevColor = b.color;
+						prevBlockIndex = a;
+						
+						b.color = "red";
+						break;
+					}
+				}		
 				
-				var redValue = 255 - globX;
-				var blueValue = globX;
-				var opacity = 0.9;
-				
-				if (noCollision(globY, groundCoords[globX])) {
-					circleColor = "rgba(" + redValue + ", 0, " + blueValue + ", " + opacity + ")";
-					drawCircle(myCircle, circleColor);
-					window.requestAnimationFrame(animate);
-				} else {
-					myCircle.radius = 25;
-					circleColor = 'black';
-					drawCircle(myCircle, circleColor);
-				}
+				shapesLayer.draw();
+				window.requestAnimationFrame(animate);
 			}
 			
 			function shoot() {
 				if (firstShot) {
 					NewGame();
+					initGame = false;
 					firstShot = false;
 				}
 			
@@ -100,7 +108,7 @@
 				power = document.getElementById("power").value;
 				wind = document.getElementById("wind").value;
 				
-				//animate();
+				animate();
 			}
 			
 			function NewGame() {
@@ -124,10 +132,9 @@
 			  				var canX = tx;
 			  				var canY = ty;
 			  			
-							block[blockIndex] = new Kinetic.Shape(function(bx, by) {    
+							block[blockIndex] = new Kinetic.Shape(function(bx, by, color) {    
 								var canvas = this.getCanvas();
 								var context = this.getContext();  
-
 								this.bx = x;
 								this.by = y;
 					
@@ -139,11 +146,14 @@
 								context.lineTo(x + blockSide, y + blockSide);
 								context.lineTo(x, y + blockSide);
 								context.closePath();
-								if (y > 200) {
-									context.fillStyle = "maroon";
-								} else {
-									context.fillStyle = "midnightblue";
+								if (initGame) {
+									if (y > 200) {
+										this.color = "maroon";
+									} else {
+										this.color = "midnightblue";
+									}
 								}
+								context.fillStyle = this.color;
 								context.fill();		
 								
 								//context.restore();
