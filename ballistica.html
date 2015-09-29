@@ -23,6 +23,7 @@
 			var initGame = true;
 			var prevBlockIndex = 0;
 			var prevColor = "";
+			var groundLevel = 200;
 			
 			var requestAnimationFrame =  
 				window.requestAnimationFrame ||
@@ -82,7 +83,7 @@
 						if (a == 0) {
 							//
 						} else {
-							block[prevBlockIndex].color = prevColor;
+						//	block[prevBlockIndex].color = prevColor;
 						}
 						
 						prevColor = b.color;
@@ -91,10 +92,12 @@
 						b.color = "red";
 						break;
 					}
-				}		
-				
+				}	
+					
 				shapesLayer.draw();
-				window.requestAnimationFrame(animate);
+				if (globY < groundLevel) {
+					window.requestAnimationFrame(animate);
+				}
 			}
 			
 			function shoot() {
@@ -147,7 +150,7 @@
 								context.lineTo(x, y + blockSide);
 								context.closePath();
 								if (initGame) {
-									if (y > 200) {
+									if (y > groundLevel) {
 										this.color = "maroon";
 									} else {
 										this.color = "midnightblue";
@@ -239,7 +242,7 @@
 				<td>
 					<p align="center">
 						<font size="2" face="arial" color="aliceblue">
-							Force: <input type="text" id="power" value="100" name="force" size="3">%
+							Force: <input type="text" id="power" value="50" name="force" size="3">%
 						</font>
 					</p>
 				</td>
