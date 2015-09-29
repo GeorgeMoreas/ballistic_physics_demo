@@ -18,6 +18,9 @@
 			var firstShot = true;
 			var shapesLayer = new Kinetic.Layer();
 			var cannon;
+			var prevColor;
+			var prevBlockIndex;
+			var globX = 0;
 			
 			var requestAnimationFrame =  
 				window.requestAnimationFrame ||
@@ -65,35 +68,35 @@
 			}
 			
 			var animate = function() {
-				var circleColor;
-						
+				var xz = cannon.cannonY;
 				globX++;
-				globY = groundCoords[cannonX] - heightAtX(0, globX - cannonX, toRadians(angle), 10, power);
+				globY = cannon.cannonY - heightAtX(0, globX - cannon.cannonX, toRadians(angle), 10, power);
 				
-				//context.clearRect(myCircle.x - myCircle.radius - 1, myCircle.y - myCircle.radius - 1, myCircle.radius * 2 + 2, myCircle.radius * 2 + 2);
+				for (var a = 0, b; b = block[a]; a++) {
+					if (globX >= b.minX &&
+						globX <= b.maxX &&
+						globY >= b.minY &&
+						globY <= b.minY) {
 						
-				myCircle.x = globX;		
-				myCircle.y = globY;
-				
-				var redValue = 255 - globX;
-				var blueValue = globX;
-				var opacity = 0.9;
-				
-				if (noCollision(globY, groundCoords[globX])) {
-					circleColor = "rgba(" + redValue + ", 0, " + blueValue + ", " + opacity + ")";
-					drawCircle(myCircle, circleColor);
-					window.requestAnimationFrame(animate);
-				} else {
-					myCircle.radius = 25;
-					circleColor = 'black';
-					drawCircle(myCircle, circleColor);
-				}
+						block[prevBlockIndex].color = prevColor;
+						
+						prevColor = b.color;
+						prevBlockIndex = a;
+						
+						b.color = "red";
+						break;
+					}
+				}		
+			
+				shapesLayer.draw();
+				window.requestAnimationFrame(animate);
 			}
 			
 			function shoot() {
 				if (firstShot) {
 					NewGame();
 					firstShot = false;
+					newGame = false;
 				}
 			
 				angle = document.getElementById("angle").value;
@@ -114,7 +117,7 @@
 				//context = canvas.getContext('2d');
 				
 				var blockIndex = 0;
-				var init = true;
+				var newGame = true;
 				
 			  	for (cy = 0; cy < gameHeight; cy += blockSide + 1) {
 			  		for (cx = 0; cx < gameWidth; cx += blockSide + 1) {
@@ -124,26 +127,33 @@
 			  				var canX = tx;
 			  				var canY = ty;
 			  			
-							block[blockIndex] = new Kinetic.Shape(function(bx, by) {    
+							block[blockIndex] = new Kinetic.Shape(function(minX, minY, maxX, maxY, color, init1) {    
 								var canvas = this.getCanvas();
 								var context = this.getContext();  
 
-								this.bx = x;
-								this.by = y;
+								this.minX = x;
+								this.minY = y;
+								this.maxX = x + blockSide;
+								this.maxY = y + blockSide;
+								
+								this.init1 = newGame;
 					
 								//context.save();
 								
 								context.beginPath();
-								context.moveTo(x, y);
-								context.lineTo(x + blockSide, y);
-								context.lineTo(x + blockSide, y + blockSide);
-								context.lineTo(x, y + blockSide);
+								context.moveTo(this.minX, this.minY);
+								context.lineTo(this.maxX, this.minY);
+								context.lineTo(this.maxX, this.maxY);
+								context.lineTo(this.minX, this.maxY);
 								context.closePath();
-								if (y > 200) {
-									context.fillStyle = "maroon";
-								} else {
-									context.fillStyle = "midnightblue";
+								if (this.init1) {
+									if (this.minY > 200) {
+										this.color = "maroon";
+									} else {
+										this.color = "midnightblue";
+									}
 								}
+								context.fillStyle = this.color;
 								context.fill();		
 								
 								//context.restore();
@@ -154,15 +164,16 @@
 							});
 							
 							if (x == 0 && y == 0) {
-								cannon = new Kinetic.Shape(function(cannonX, cannonY) { 
+								cannon = new Kinetic.Shape(function(cannonX, cannonY, init2) { 
 									var canvas = this.getCanvas();
 									var context = this.getContext();  
+									
+									this.init2 = newGame;
 								 
-									if (init) {
+									if (this.init2) {
 										this.cannonX = canX;
 										this.cannonY = canY;	
 										this.color = "orange";
-										init = false;
 									}
 								
 									//context.save();					
@@ -179,28 +190,28 @@
 									//context.restore();
 								});
 							}
-							
 							shapesLayer.add(block[blockIndex]);
 							shapesLayer.add(cannon);
 						})();
 						blockIndex++;
 					}
 				}
+				
 			  	stage.add(shapesLayer);
 			  	shapesLayer.draw();
 			}
 			
 			function cannonControl(b) {
-				if (b.bx > cannon.cannonX) {
+				if (b.minX > cannon.cannonX) {
 					cannon.cannonX += blockSide + 1;
 				} 
-				if (b.bx < cannon.cannonX) {
+				if (b.minX < cannon.cannonX) {
 					cannon.cannonX -= blockSide + 1;
 				} 
-				if (b.by > cannon.cannonY) {
+				if (b.minY > cannon.cannonY) {
 					//cannon.cannonY += blockSide + 1;
 				} 
-				if (b.by < cannon.cannonY) {
+				if (b.minY < cannon.cannonY) {
 					//cannon.cannonY -= blockSide + 1;
 				} 
 				shapesLayer.draw();
