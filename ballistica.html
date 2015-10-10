@@ -24,6 +24,8 @@
 			var prevBlockIndex = 0;
 			var prevColor = "";
 			var groundLevel = 200;
+			var initCannonX = 0;
+			var initCannonY = 0;
 			
 			var requestAnimationFrame =  
 				window.requestAnimationFrame ||
@@ -72,7 +74,7 @@
 			var animate = function() {
 			
 				globX++;
-				globY = cannon.cannonY - heightAtX(0, globX - cannon.cannonX, toRadians(angle), 10, power);
+				globY = initCannonY - heightAtX(0, globX - initCannonX, toRadians(angle), 10, power);
 				
 				for (var a = 0, b; b = block[a]; a++) {
 					if (globX >= b.bx &&
@@ -111,6 +113,8 @@
 				power = document.getElementById("power").value;
 				wind = document.getElementById("wind").value;
 				
+				initCannonX = cannon.cannonX;
+				initCannonY = cannon.cannonY;				
 				animate();
 			}
 			
