@@ -73,7 +73,7 @@
 			
 			var animate = function() {
 			
-				globX++;
+				globX += blockSide;
 				globY = initCannonY - heightAtX(0, globX - initCannonX, toRadians(angle), 10, power);
 				
 				for (var a = 0, b; b = block[a]; a++) {
